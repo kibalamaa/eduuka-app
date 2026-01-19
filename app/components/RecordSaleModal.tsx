@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, QrCode } from "lucide-react";
-import {QrReader}  from "react-qr-reader"; // Import scanner
+import { Scanner } from '@yudiel/react-qr-scanner';
 import { Sale } from "@/app/types/expenses";
 import { InventoryItem } from "@/app/types/inventory";
 
@@ -12,7 +12,7 @@ type Props = {
   onSubmit: (formData: any) => Promise<void>;
   editingSale?: Sale | null;
   inventory: InventoryItem[];
-  startWithScanner?: boolean; // <--- New Prop to trigger camera immediately
+  startWithScanner?: boolean;
 };
 
 const INPUT_STYLE = "w-full px-4 py-2 border border-gray-200 dark:border-slate-600 rounded-lg text-sm bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all";
@@ -48,11 +48,16 @@ export default function RecordSaleModal({ isOpen, onClose, onSubmit, editingSale
         // Open scanner immediately if requested
         setShowScanner(startWithScanner);
       }
+    } else {
+        // Ensure scanner is off when modal closes
+        setShowScanner(false);
     }
   }, [isOpen, editingSale, startWithScanner]);
 
   // Logic to handle item selection (Dropdown or Scan)
   const selectItem = (itemName: string) => {
+    if (!itemName) return;
+
     // Case insensitive search
     const stockItem = inventory.find(i => i.item.toLowerCase() === itemName.toLowerCase());
     
@@ -63,7 +68,7 @@ export default function RecordSaleModal({ isOpen, onClose, onSubmit, editingSale
       setTotalAmount(stockItem.price * quantity);
       setShowScanner(false); // Close camera on success
       
-      // Optional: Play a beep sound here
+      // Optional: Play a beep sound here or use the library's built-in audio
     } else {
       alert(`Item "${itemName}" not found in inventory.`);
       setShowScanner(false);
@@ -130,25 +135,29 @@ export default function RecordSaleModal({ isOpen, onClose, onSubmit, editingSale
                  </button>
                ) : (
                  <div className="relative rounded-lg overflow-hidden bg-black aspect-square">
-                   <QrReader
-                      onResult={(result: any, error: any) => {
-                        if (!!result) {
-                          selectItem(result?.text);
-                        }
-                      }}
-                      constraints={{ facingMode: 'environment' }} // Use Back Camera
-                      className="w-full h-full object-cover"
+                   {/* NEW SCANNER COMPONENT */}
+                   <Scanner 
+                        onScan={(result) => {
+                            if (result && result.length > 0) {
+                                selectItem(result[0].rawValue);
+                            }
+                        }}
+                        onError={(error) => console.log(error)}
+                        components={{
+                            audio: true, // Plays beep on scan
+                            torch: true, // Adds flash button
+                            finder: true // Adds the visual scanning box
+                        }}
+                        styles={{
+                            container: { width: "100%", height: "100%" }
+                        }}
                    />
-                   <div className="absolute inset-0 border-2 border-white/50 m-10 rounded-lg pointer-events-none"></div>
                    <button 
                      onClick={() => setShowScanner(false)}
                      className="absolute top-2 right-2 bg-red-600/90 text-white px-3 py-1 text-xs rounded-full shadow-sm z-10"
                    >
                      Cancel Scan
                    </button>
-                   <p className="absolute bottom-4 left-0 right-0 text-center text-white text-sm bg-black/50 py-1">
-                     Point camera at QR code
-                   </p>
                  </div>
                )}
             </div>
