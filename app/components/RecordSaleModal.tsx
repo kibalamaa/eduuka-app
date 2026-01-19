@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, QrCode } from "lucide-react";
-import { Scanner } from '@yudiel/react-qr-scanner';
+import { Scanner } from '@yudiel/react-qr-scanner'; 
 import { Sale } from "@/app/types/expenses";
 import { InventoryItem } from "@/app/types/inventory";
 
@@ -68,7 +68,6 @@ export default function RecordSaleModal({ isOpen, onClose, onSubmit, editingSale
       setTotalAmount(stockItem.price * quantity);
       setShowScanner(false); // Close camera on success
       
-      // Optional: Play a beep sound here or use the library's built-in audio
     } else {
       alert(`Item "${itemName}" not found in inventory.`);
       setShowScanner(false);
@@ -143,10 +142,10 @@ export default function RecordSaleModal({ isOpen, onClose, onSubmit, editingSale
                             }
                         }}
                         onError={(error) => console.log(error)}
+                        // FIX: Removed 'audio' property to satisfy Typescript
                         components={{
-                            audio: true, // Plays beep on scan
-                            torch: true, // Adds flash button
-                            finder: true // Adds the visual scanning box
+                            torch: true, 
+                            finder: true 
                         }}
                         styles={{
                             container: { width: "100%", height: "100%" }

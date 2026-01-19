@@ -13,7 +13,7 @@ export interface Sale {
 
 
 
-export type Inventory {
+export type Inventory = {
   id: string;
   description: string;
   unit_price: number;

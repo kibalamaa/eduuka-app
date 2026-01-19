@@ -1,5 +1,5 @@
 import { DollarSign, Users, TrendingDown, CheckCircle, AlertTriangle, Building2 } from "lucide-react";
-import { InventoryItem } from "../../types/inventory";
+import { InventoryItem } from "@/app/types/inventory";
 
 export default function InventoryStats({ inventory }: { inventory: InventoryItem[] }) {
   

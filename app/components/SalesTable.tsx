@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, FileText, CheckCircle2, AlertCircle, Trash2, Lock, Edit } from "lucide-react";
-import { Sale } from "../../types/expenses";
+import { Sale } from "@/app/types/expenses";
 
 type Props = {
   sales: Sale[];
