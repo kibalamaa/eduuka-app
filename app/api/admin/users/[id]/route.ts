@@ -2,12 +2,20 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import dbConnect from "@/app/lib/mongodb";
 import User from "@/app/models/User";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+// 1. Define the type correctly for Next.js 15/16
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+// 2. Update the function signature to use Props
+export async function PATCH(req: Request, { params }: Props) {
+  // 3. AWAIT the params before using them
+  const { id } = await params;
+
   const session = await getServerSession(authOptions);
 
-  // Security Check: Only Admins can promote/demote
   // @ts-ignore
   if (session?.user?.role !== "admin") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
@@ -23,8 +31,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
 
     await dbConnect();
+    
+    // Use 'id' (extracted from await params)
     const updatedUser = await User.findByIdAndUpdate(
-      params.id, 
+      id, 
       { role }, 
       { new: true }
     ).select("-password");
